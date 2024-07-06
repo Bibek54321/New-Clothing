@@ -124,7 +124,7 @@ export const deleteProductController = async(req,res) => {
 export const updateProductController = async(req,res) => {
 
     try{
-        const {name,description, price,category, quantity,shipping} = req.fields;
+        const {name,description, price,category, quantity} = req.fields;
         const {photo} =  req.files;
         //Validation
         switch(true){
@@ -138,7 +138,7 @@ export const updateProductController = async(req,res) => {
                 return res.status(500).send({error:'Category is Required'});
             case !quantity:
                 return res.status(500).send({error:'Quantity is Required'});
-            case !photo && photo.size>100000:
+            case photo && photo.size>1000000000 :
                 return res.status(500).send({error:'Photo is Required and should be less than 1mb'});
 
         }
@@ -231,6 +231,33 @@ export const searchProductController = async (req, res) => {
       });
     }
   };
+
+  //similar product
+export const relatedProductController = async (req, res) => {
+    try {
+        const { pid, cid } = req.params;
+        const products = await productModel
+            .find({
+                category: cid,
+                _id: { $ne: pid },
+            })
+            .select("-photo")
+            .limit(3)
+            .populate("category");
+        res.status(200).send({
+            success: true,
+            products,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            success: false,
+            message: "error while geting related product",
+            error,
+        });
+    }
+};
+
  
   // get product by catgory
   export const productCategoryController = async (req, res) => {

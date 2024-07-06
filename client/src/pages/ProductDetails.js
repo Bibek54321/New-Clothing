@@ -11,6 +11,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState({});
   const [cart, setCart] = useCart();
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   //inital details
   useEffect(() => {
@@ -27,6 +28,18 @@ const ProductDetails = () => {
       console.log(error);
     }
   };
+
+  //get similar product
+  const getSimilarProduct = async (pid, cid) => {
+    try {
+        const { data } = await axios.get(
+            `/api/v1/product/related-product/${pid}/${cid}`
+        );
+        setRelatedProducts(data?.products);
+    } catch (error) {
+        console.log(error);
+    }
+};
  
   return (
     <Layout>
@@ -54,7 +67,7 @@ const ProductDetails = () => {
           </h6>
           <h6>Category : {product?.category?.name}</h6>
           <button 
-          className="btn btn-dark ms-1"
+          className="btn btn-outline-primary"
           onClick={() => {
             setCart([...cart, product]);
             localStorage.setItem(

@@ -10,7 +10,41 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useCart();
   const [products, setProducts] = useState([]);
+  const [total, setTotal] = useState(0);
   const [page,setPage] =useState(1);
+
+  // Increase quantity of a product in the cart
+  const increaseQuantity = (productId) => {
+    const updatedCart = cart.map((item) => {
+      if (item._id === productId) {
+        return {
+          ...item,
+          quantity: item.quantity + 1,
+        };
+      }
+      return item;
+    });
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+    // Add new item to the cart
+const addToCart = (product) => {
+  const existingItem = cart.find((item) => item._id === product._id);
+
+  if (existingItem) {
+    // If item already exists, increase the quantity
+    increaseQuantity(product._id);
+    toast.success('Item added to cart');
+  } else {
+    // If item doesn't exist, add it to the cart with quantity 1
+    const newItem = { ...product, quantity: 1 };
+    const updatedCart = [...cart, newItem];
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    toast.success('Item added to cart');
+  }
+};
   
   //get products
   const getAllProducts = async () => {
@@ -35,7 +69,7 @@ const HomePage = () => {
       />
       {/* banner image */}
      <div className="container-fluid row mt-3 home-page">
-        <div className="col-md-9 ">
+        <div className="col-md-9 mx-auto">
           <h1 className="text-center">All Products</h1>
           <div className="d-flex flex-wrap">
             {products?.map((p) => (
@@ -59,13 +93,24 @@ const HomePage = () => {
                     {p.description.substring(0, 60)}...
                   </p>
                   <div className="card-name-price">
-                    <button
+
+                      <button 
+                      className={`btn ${
+                        p.quantity <= 0 ? 'btn-outline-danger' : 'btn-outline-primary'
+                      }`}
+                      onClick={()=> addToCart(p)}
+                      disabled={p.quantity <=0 }
+                      >
+                        { p.quantity <= 0? 'Out of stock' : 'Add to cart'}
+                      </button>
+
+                     <button
                       className="btn btn-info ms-1"
                       onClick={() => navigate(`/product/${p.slug}`)}
                     >
                       More Details
                     </button>
-                    <button
+                    {/*<button
                       className="btn btn-dark ms-1"
                       onClick={() => {
                         setCart([...cart, p]);
@@ -77,7 +122,7 @@ const HomePage = () => {
                       }}
                     >
                       ADD TO CART
-                    </button>
+                    </button>*/}
                   </div>
                 </div>
                

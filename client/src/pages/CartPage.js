@@ -22,7 +22,7 @@ const CartPage = () => {
     try {
       let total = 0;
       cart?.map((item) => {
-        total = total + item.price;
+        total = total + item.price * item.quantity;
       });
       return total.toLocaleString("en-NP", {
         style: "currency",
@@ -32,6 +32,39 @@ const CartPage = () => {
       console.log(error);
     }
   };
+
+  // Increase quantity of a product in the cart
+  const increaseQuantity = (productId) => {
+    const updatedCart = cart.map((item) => {
+        if (item._id === productId) {
+            return {
+                ...item,
+                quantity: item.quantity + 1,
+            };
+        }
+        return item;
+    });
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+};
+
+// Decrease quantity of a product in the cart
+const decreaseQuantity = (productId) => {
+    const updatedCart = cart.map((item) => {
+        if (item._id === productId && item.quantity > 1) {
+            return {
+                ...item,
+                quantity: item.quantity - 1,
+            };
+        }
+        return item;
+    });
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+};
+
+
+
   //delete item
   const removeCartItem = (pid) => {
     try {
@@ -79,12 +112,27 @@ const CartPage = () => {
                   </div>
                   <div className="col-md-4">
                     <p>{p.name}</p>
-                    <p>{p.description.substring(0, 30)}</p>
+                    {/* <p>{p.description.substring(0, 30)}</p> */}
                     <p>Price : {p.price}</p>
                   </div>
                   <div className="col-md-4 cart-remove-btn">
+                    <div>
+                      <button
+                        className=" col btn btn-sm btn-primary"
+                              onClick={() => decreaseQuantity(p._id)}
+                          >
+                              -
+                      </button>&nbsp;&nbsp;
+                      <span>{p.quantity}</span>&nbsp;&nbsp;
+                      <button 
+                          className="btn btn-sm btn-primary"
+                          onClick={() => increaseQuantity(p._id)}
+                       > 
+                        + 
+                       </button>   
+                    </div>
                     <button
-                      className="btn btn-danger"
+                      className="btn btn-danger ms-3"
                       onClick={() => removeCartItem(p._id)}
                     >
                       Remove
@@ -129,7 +177,7 @@ const CartPage = () => {
                         })
                       }
                     >
-                      Plase Login to checkout
+                      Please Login to checkout
                     </button>
                   )}
                 </div>
